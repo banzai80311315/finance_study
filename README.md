@@ -61,20 +61,13 @@ $$
 アジアンオプション：
 
 $$
-\max\left(
-\frac{1}{N}\sum_{i=1}^{N}S_{t_i} - K,
-0
-\right)
+\max\left(\frac{1}{N}\sum_{i=1}^{N}S_{t_i} - K,0\right)
 $$
 
 バリアオプション：
 
 $$
-\max(S_T-K,0)
-\mathbf{1}
-\left(
-\max_t S_t < B
-\right)
+\max(S_T-K,0)\mathbf{1}\left(\max_t S_t < B\right)
 $$
 
 オプションごとの差異は、主にこのペイオフ構造に現れる。
@@ -86,33 +79,19 @@ $$
 幾何ブラウン運動：
 
 $$
-dS_t
-=
-\mu S_t dt
-+
-\sigma S_t dW_t
+dS_t=\mu S_t dt+\sigma S_t dW_t
 $$
 
 平均回帰モデル：
 
 $$
-dX_t
-=
--\kappa(X_t-\mu)dt
-+
-\sigma dW_t
+dX_t=-\kappa(X_t-\mu)dt+\sigma dW_t
 $$
 
 ジャンプ拡散モデル：
 
 $$
-dS_t
-=
-\mu S_tdt
-+
-\sigma S_tdW_t
-+
-J_tdN_t
+dS_t=\mu S_tdt+\sigma S_tdW_t+J_tdN_t
 $$
 
 電力市場では、
@@ -162,10 +141,7 @@ $$
 最終的なオプション価格は、
 
 $$
-\mathrm{Price}
-=
-e^{-rT}
-\mathbb{E}^{Q}[\mathrm{Payoff}]
+\mathrm{Price}=e^{-rT}\mathbb{E}^{Q}[\mathrm{Payoff}]
 $$
 
 として評価する。
