@@ -3,6 +3,12 @@
 - DX人材としての学習成果を見せる
 - 個別株投資家として銘柄分析に使える道具を作る
 
+# 実行コマンド
+```bash
+cd finance_study\app
+streamlit run app.py
+```
+
 # 要件定義
 
 1. [現場で使える要件定義の進め方・成果物Excelサンプル](https://qiita.com/otomaru97/items/212d0cb94c560b66b739)
@@ -17,4 +23,4 @@
 
 # 詳細設計
 
-# 
+1. [詳細設計の書き方](https://qiita.com/k-kimu/items/300a631e7599453fb4e3)
