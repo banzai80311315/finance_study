@@ -1,7 +1,7 @@
 import streamlit as st
 
-from pages.top_page import show_top_page
-from pages.dashboard_page import show_dashboard_page
+from views.top_page import show_top_page
+from views.dashboard_page import show_dashboard_page
 
 
 def init_session_state():

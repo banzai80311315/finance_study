@@ -12,7 +12,12 @@ def show_top_page():
 
     keyword = st.text_input("銘柄名・証券コードで検索")
 
-    filtered_stocks = search_stocks(stock_master, keyword)
+    if st.button("検索"):
+        st.session_state.search_keyword = keyword
+
+    filtered_stocks = search_stocks(
+        stock_master, st.session_state.get("search_keyword", "")
+    )
 
     st.subheader("銘柄一覧")
 
