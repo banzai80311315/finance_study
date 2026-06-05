@@ -9,6 +9,13 @@ cd finance_study\app
 streamlit run app.py
 ```
 
+# 設計
+## 責務分離
+- app : 初期化とルーディング
+- views : 画面表示ロジックとserviceの呼び出し
+- service : 業務ロジック
+- lib : 数理モデルの実装
+
 # 要件定義
 
 1. [現場で使える要件定義の進め方・成果物Excelサンプル](https://qiita.com/otomaru97/items/212d0cb94c560b66b739)
