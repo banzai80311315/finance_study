@@ -1,8 +1,10 @@
 import yfinance as yf
+import streamlit as st
 
 from services.stock_service import format_yen_amount
 
 
+@st.cache_data(ttl=3600, show_spinner=False)
 def get_financial_summary(ticker: str) -> dict:
     stock = yf.Ticker(ticker)
 

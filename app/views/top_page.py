@@ -4,11 +4,21 @@ from services.stock_service import load_stock_master, search_stocks
 
 
 def show_top_page():
-    st.title("個別株分析アプリ")
+    st.title("Stock Research Studio")
+    st.caption("企業・価格・リスク・時系列モデルを一つの場所で検証する個別株研究環境")
 
-    st.header("銘柄検索")
+    try:
+        stock_master = load_stock_master()
+    except (FileNotFoundError, ValueError) as exc:
+        st.error(f"銘柄一覧を読み込めませんでした: {exc}")
+        return
 
-    stock_master = load_stock_master()
+    overview1, overview2, overview3 = st.columns(3)
+    overview1.metric("登録銘柄", f"{len(stock_master)}社")
+    overview2.metric("分析機能", "5タブ")
+    overview3.metric("検証方式", "Rolling origin")
+
+    st.header("銘柄を選ぶ")
 
     keyword = st.text_input("銘柄名・証券コードで検索")
 
@@ -21,20 +31,31 @@ def show_top_page():
 
     st.subheader("銘柄一覧")
 
-    st.dataframe(filtered_stocks, width="stretch")
+    display_columns = {
+        "ticker": "証券コード",
+        "company_name": "銘柄名",
+        "industry": "業種",
+        "sector": "セクター",
+    }
+    st.dataframe(
+        filtered_stocks[list(display_columns)].rename(columns=display_columns),
+        width="stretch",
+        hide_index=True,
+    )
 
     if filtered_stocks.empty:
         st.warning("該当する銘柄がありません。")
         return
 
-    selected_company_name = st.selectbox(
-        "分析する銘柄を選択", filtered_stocks["company_name"].tolist()
+    options = filtered_stocks.assign(
+        label=lambda frame: frame["company_name"] + "（" + frame["ticker"] + "）"
+    )
+    selected_label = st.selectbox(
+        "分析する銘柄を選択", options["label"].tolist()
     )
 
     if st.button("分析開始"):
-        selected_row = filtered_stocks[
-            filtered_stocks["company_name"] == selected_company_name
-        ].iloc[0]
+        selected_row = options[options["label"] == selected_label].iloc[0]
 
         st.session_state.selected_ticker = selected_row["ticker"]
         st.session_state.selected_company_name = selected_row["company_name"]

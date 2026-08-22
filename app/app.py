@@ -16,7 +16,12 @@ def init_session_state():
 
 
 def main():
-    st.set_page_config(page_title="個別株分析アプリ", layout="wide")
+    st.set_page_config(
+        page_title="Stock Research Studio",
+        page_icon="📈",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
 
     init_session_state()
 

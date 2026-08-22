@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
+import streamlit as st
 import yfinance as yf
 
 
@@ -14,10 +15,11 @@ def load_stock_master() -> pd.DataFrame:
 
     df = pd.read_csv(STOCK_MASTER_PATH)
 
-    required_columns = {"ticker", "company_name"}
+    required_columns = {"ticker", "company_name", "industry", "sector", "is_active"}
 
     if not required_columns.issubset(df.columns):
-        raise ValueError("stock_master.csv に ticker, company_name が必要です。")
+        missing = sorted(required_columns - set(df.columns))
+        raise ValueError(f"stock_master.csv に必須列がありません: {', '.join(missing)}")
 
     active_df = df[df["is_active"] == 1].copy()
 
@@ -40,6 +42,7 @@ def search_stocks(stock_master: pd.DataFrame, keyword: str) -> pd.DataFrame:
     return result
 
 
+@st.cache_data(ttl=900, show_spinner=False)
 def get_price_data(ticker: str, period: str = "1y") -> pd.DataFrame:
     stock = yf.Ticker(ticker)
 
@@ -51,6 +54,7 @@ def get_price_data(ticker: str, period: str = "1y") -> pd.DataFrame:
     return df
 
 
+@st.cache_data(ttl=3600, show_spinner=False)
 def get_stock_info(ticker: str) -> dict:
     stock = yf.Ticker(ticker)
 

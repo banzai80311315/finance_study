@@ -1,5 +1,6 @@
 import streamlit as st
 
+from lib.glossary import term_help
 from services.financial_service import get_financial_summary
 from services.analysis_service import judge_valuation
 
@@ -20,18 +21,21 @@ def render(context):
             pbr=financial_summary.get("pbr"),
         )
 
-    except Exception as e:
-        st.error("財務データの取得または分析に失敗しました。")
-        st.write(e)
+    except Exception:
+        st.error("財務データを取得できませんでした。しばらく待って再度お試しください。")
         return
 
     st.subheader("財務指標")
 
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("PER", financial_summary.get("per_text", "-"))
-    col2.metric("PBR", financial_summary.get("pbr_text", "-"))
-    col3.metric("ROE", financial_summary.get("roe_text", "-"))
-    col4.metric("時価総額", financial_summary.get("market_cap_text", "-"))
+    col1.metric("PER", financial_summary.get("per_text", "-"), help=term_help("PER"))
+    col2.metric("PBR", financial_summary.get("pbr_text", "-"), help=term_help("PBR"))
+    col3.metric("ROE", financial_summary.get("roe_text", "-"), help=term_help("ROE"))
+    col4.metric(
+        "時価総額",
+        financial_summary.get("market_cap_text", "-"),
+        help=term_help("時価総額"),
+    )
 
     st.subheader("収益性")
 

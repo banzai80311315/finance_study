@@ -33,10 +33,16 @@ def show_dashboard_page():
         st.session_state.page = "top"
         st.rerun()
 
-    st.title(f"{company_name} ダッシュボード")
-    st.write(f"証券コード：{ticker}")
+    with st.sidebar:
+        st.title("Stock Research Studio")
+        st.subheader(company_name)
+        st.caption(f"証券コード: {ticker}")
+        st.divider()
+        st.caption("表示データはYahoo Financeから取得します。投資助言ではありません。")
 
-    if st.button("トップ画面へ戻る"):
+    st.title(f"{company_name} リサーチダッシュボード")
+
+    if st.button("← 銘柄選択へ戻る"):
         st.session_state.page = "top"
         st.rerun()
 
@@ -48,6 +54,9 @@ def show_dashboard_page():
     }
 
     tab_modules = load_dashboard_tabs()
+    if not tab_modules:
+        st.error("表示可能な分析タブがありません。")
+        return
     tab_objects = st.tabs([module.TAB_NAME for module in tab_modules])
 
     for tab_object, tab_module in zip(tab_objects, tab_modules):

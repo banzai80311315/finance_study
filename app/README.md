@@ -1,33 +1,62 @@
-# アプリの目的
+# Stock Research Studio
 
-- DX人材としての学習成果を見せる
-- 個別株投資家として銘柄分析に使える道具を作る
+個別株の企業情報、財務、価格、リスクを確認し、時系列モデルを共通の検証方法で比較するためのStreamlitアプリです。表示内容は投資判断の補助を目的とし、投資助言ではありません。
 
-# 実行コマンド
-```bash
-cd finance_study\app
-streamlit run app.py
+## 起動
+
+```powershell
+cd app
+python -m pip install -r requirements.txt
+python -m streamlit run app.py
 ```
 
-# 設計
-## 責務分離
-- app : 初期化とルーディング
-- views : 画面表示ロジックとserviceの呼び出し
-- service : 業務ロジック
-- lib : 数理モデルの実装
+## 構成
 
-# 要件定義
+```text
+app/
+├── app.py                     # 初期化と画面ルーティング
+├── data/stock_master.csv      # 対象銘柄
+├── lib/time_series/           # 時系列モデル・診断・検証（UI非依存）
+├── services/                  # データ取得と業務処理
+├── views/dashboard_tabs/      # 分析画面
+└── tests/                     # 自動テスト
+```
 
-1. [現場で使える要件定義の進め方・成果物Excelサンプル](https://qiita.com/otomaru97/items/212d0cb94c560b66b739)
-2. [【入門】事例で学ぶ要件定義](https://qiita.com/KNR109/items/8b37f7f8c051868d9a98)
-3. [要件定義書の参考になりそうなサンプル３本を紹介してみる](https://qiita.com/otomaru97/items/01b8333dd86c30d7fb41?utm_source=chatgpt.com)
+## 時系列モデルの追加方法
 
-特に1.で要件定義で実施するフローと成果物が具体的に明示されている。
+モデルは `ForecastModel` の共通契約に従います。論文の再現モデルは、モデル固有の前処理・推定・予測をクラス内へ閉じ込めてください。
 
-# 基本設計
+1. `lib/time_series/models.py` に `ForecastModel` のサブクラスを作る
+2. `metadata` に識別子、表示名、説明、仮定、文献情報を書く
+3. `minimum_observations` と `forecast(train, horizon)` を実装する
+4. ファイル末尾の `register_models(...)` にインスタンスを追加する
+5. 未来情報を使わないテストを `tests/` に追加する
 
-1. [【入門】事例で学ぶ基本設計](https://qiita.com/KNR109/items/5d545903ec7fef85cd37)
+最小例：
 
-# 詳細設計
+```python
+class PaperModel(ForecastModel):
+    metadata = ModelMetadata(
+        key="paper_model",
+        name="論文モデル",
+        description="モデルが表す現象と推定方法",
+        assumptions=("定常性", "有限分散"),
+        reference="Author (Year), title, DOI",
+    )
+    minimum_observations = 100
 
-1. [詳細設計の書き方](https://qiita.com/k-kimu/items/300a631e7599453fb4e3)
+    def forecast(self, train: pd.Series, horizon: int) -> pd.Series:
+        clean = self.validate(train, horizon)
+        # 論文の推定・予測処理
+        return pd.Series(..., dtype=float)
+```
+
+時系列ラボは登録モデルを自動的に列挙し、ローリング・オリジン法でMAE、RMSE、MAPE、Biasを計算します。モデル選択に検証期間を使う場合は、最終評価用のホールドアウト期間を別に確保してください。
+
+## 検証
+
+```powershell
+python -m pytest app/tests
+```
+
+Yahoo Financeの仕様や取得値は変更されることがあります。研究で結果を再現する場合は、取得日時、対象期間、調整済み価格の扱い、欠損処理、パッケージバージョンを保存してください。

@@ -12,7 +12,9 @@ def add_moving_average(
     return result
 
 
-def judge_trend(df: pd.DataFrame) -> str:
+def judge_trend(
+    df: pd.DataFrame, short_window: int = 25, long_window: int = 75
+) -> str:
     clean_df = df.dropna()
 
     if clean_df.empty:
@@ -21,18 +23,20 @@ def judge_trend(df: pd.DataFrame) -> str:
     latest = clean_df.iloc[-1]
 
     close = latest["Close"]
-    ma25 = latest["MA25"]
-    ma75 = latest["MA75"]
+    short_ma = latest[f"MA{short_window}"]
+    long_ma = latest[f"MA{long_window}"]
 
-    if close > ma25 > ma75:
+    if close > short_ma > long_ma:
         return "上昇トレンド"
-    elif close < ma25 < ma75:
+    elif close < short_ma < long_ma:
         return "下降トレンド"
     else:
         return "横ばい・判定保留"
 
 
-def judge_golden_cross(df: pd.DataFrame) -> str:
+def judge_golden_cross(
+    df: pd.DataFrame, short_window: int = 25, long_window: int = 75
+) -> str:
     clean_df = df.dropna()
 
     if len(clean_df) < 2:
@@ -41,11 +45,11 @@ def judge_golden_cross(df: pd.DataFrame) -> str:
     previous = clean_df.iloc[-2]
     latest = clean_df.iloc[-1]
 
-    prev_short = previous["MA25"]
-    prev_long = previous["MA75"]
+    prev_short = previous[f"MA{short_window}"]
+    prev_long = previous[f"MA{long_window}"]
 
-    latest_short = latest["MA25"]
-    latest_long = latest["MA75"]
+    latest_short = latest[f"MA{short_window}"]
+    latest_long = latest[f"MA{long_window}"]
 
     if prev_short <= prev_long and latest_short > latest_long:
         return "ゴールデンクロス"
