@@ -1,6 +1,6 @@
-import altair as alt
 import streamlit as st
 
+from lib.charting import bar_chart, line_chart
 from lib.glossary import term_help
 from services.stock_service import get_price_data
 from services.analysis_service import (
@@ -12,6 +12,19 @@ from services.analysis_service import (
 TAB_NAME = "株価分析"
 ORDER = 20
 
+PRICE_PERIODS = {
+    "5営業日": "5d",
+    "1か月": "1mo",
+    "3か月": "3mo",
+    "6か月": "6mo",
+    "1年": "1y",
+    "2年": "2y",
+    "5年": "5y",
+    "10年": "10y",
+    "年初来": "ytd",
+    "全期間": "max",
+}
+
 
 def render(context):
     ticker = context["ticker"]
@@ -19,12 +32,13 @@ def render(context):
     st.header("株価分析")
 
     try:
-        period = st.selectbox(
+        selected_period = st.selectbox(
             "表示期間",
-            ["6mo", "1y", "3y", "5y", "10y"],
-            index=1,
+            list(PRICE_PERIODS),
+            index=4,
             key="price_analysis_period",
         )
+        period = PRICE_PERIODS[selected_period]
 
         col_short, col_long = st.columns(2)
         short_window = col_short.number_input("短期移動平均", 2, 100, 25)
@@ -43,6 +57,13 @@ def render(context):
 
         trend_result = judge_trend(price_df, short_window, long_window)
         golden_cross_result = judge_golden_cross(price_df, short_window, long_window)
+
+        if len(price_df) < long_window:
+            st.info(
+                f"選択期間のデータは{len(price_df)}件です。"
+                f"長期移動平均（{long_window}日）の判定にはデータが不足しているため、"
+                "終値を中心に表示します。"
+            )
 
     except Exception:
         st.error("株価データを取得できませんでした。しばらく待って再度お試しください。")
@@ -71,35 +92,8 @@ def render(context):
     st.subheader("終値・移動平均チャート")
     chart_df = price_df[
         ["Close", f"MA{short_window}", f"MA{long_window}"]
-    ].dropna()
-    chart_data = (
-        chart_df.rename_axis("Date")
-        .reset_index()
-        .melt(id_vars="Date", var_name="系列", value_name="価格")
-    )
-    y_min = float(price_df["Low"].min()) - 10
-    y_max = float(price_df["High"].max()) + 10
-    price_chart = (
-        alt.Chart(chart_data)
-        .mark_line()
-        .encode(
-            x=alt.X("Date:T", title="日付"),
-            y=alt.Y(
-                "価格:Q",
-                title="価格（円）",
-                scale=alt.Scale(domain=[y_min, y_max], zero=False),
-            ),
-            color=alt.Color("系列:N", title=None),
-            tooltip=[
-                alt.Tooltip("Date:T", title="日付"),
-                alt.Tooltip("系列:N"),
-                alt.Tooltip("価格:Q", format=",.2f"),
-            ],
-        )
-        .properties(height=420)
-        .interactive()
-    )
-    st.altair_chart(price_chart, width="stretch")
+    ].dropna(how="all")
+    st.altair_chart(line_chart(chart_df, "価格（円）"), width="stretch")
 
     st.subheader("出来高チャート")
-    st.bar_chart(price_df["Volume"])
+    st.altair_chart(bar_chart(price_df["Volume"], "出来高"), width="stretch")

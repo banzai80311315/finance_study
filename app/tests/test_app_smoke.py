@@ -9,3 +9,6 @@ def test_top_page_renders_without_exception():
 
     assert not app.exception
     assert app.title[0].value == "Stock Research Studio"
+    stock_table = app.dataframe[0].value
+    assert "公式IR URL" in stock_table.columns
+    assert stock_table["公式IR URL"].str.startswith("https://").all()

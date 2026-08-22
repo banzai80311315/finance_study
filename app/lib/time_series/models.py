@@ -5,6 +5,7 @@ import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 
 from lib.time_series.base import ForecastModel, ModelMetadata
+from lib.time_series.particle_filter import LocalLevelParticleFilterModel
 
 
 class NaiveModel(ForecastModel):
@@ -81,4 +82,6 @@ def get_model(key: str) -> ForecastModel:
         raise ValueError(f"未登録のモデルです: {key}") from exc
 
 
-register_models((NaiveModel(), DriftModel(), ArimaModel()))
+register_models(
+    (NaiveModel(), DriftModel(), ArimaModel(), LocalLevelParticleFilterModel())
+)

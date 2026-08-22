@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
+from lib.charting import bar_chart, line_chart
 from lib.glossary import term_help
 from services.stock_service import get_price_data
 
@@ -31,7 +32,7 @@ def render(context):
         price_df = get_price_data(context["ticker"], period="5y")
         returns = price_df["Close"].pct_change().dropna()
         metrics = _risk_metrics(price_df["Close"])
-    except (ValueError, KeyError) as exc:
+    except Exception as exc:
         st.error(f"リスク指標を計算できませんでした: {exc}")
         return
 
@@ -40,11 +41,12 @@ def render(context):
         column.metric(label, f"{value:.2%}", help=term_help(label))
 
     st.subheader("累積リターン")
-    st.line_chart(((1 + returns).cumprod() - 1).rename("Cumulative return"))
+    cumulative_return = ((1 + returns).cumprod() - 1).rename("累積リターン")
+    st.altair_chart(line_chart(cumulative_return, "累積リターン"), width="stretch")
 
     st.subheader("日次リターン分布")
     bins = pd.cut(returns, bins=30).value_counts(sort=False)
     distribution = pd.DataFrame(
         {"Return": [interval.mid for interval in bins.index], "Count": bins.values}
     ).set_index("Return")
-    st.bar_chart(distribution)
+    st.altair_chart(bar_chart(distribution["Count"], "観測数"), width="stretch")

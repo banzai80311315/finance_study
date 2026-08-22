@@ -36,11 +36,18 @@ def show_top_page():
         "company_name": "銘柄名",
         "industry": "業種",
         "sector": "セクター",
+        "ir_url": "公式IR URL",
     }
     st.dataframe(
         filtered_stocks[list(display_columns)].rename(columns=display_columns),
         width="stretch",
         hide_index=True,
+        column_config={
+            "公式IR URL": st.column_config.LinkColumn(
+                "公式IR URL",
+                help="企業公式の株主・投資家情報ページを開きます。",
+            )
+        },
     )
 
     if filtered_stocks.empty:

@@ -15,7 +15,14 @@ def load_stock_master() -> pd.DataFrame:
 
     df = pd.read_csv(STOCK_MASTER_PATH)
 
-    required_columns = {"ticker", "company_name", "industry", "sector", "is_active"}
+    required_columns = {
+        "ticker",
+        "company_name",
+        "industry",
+        "sector",
+        "is_active",
+        "ir_url",
+    }
 
     if not required_columns.issubset(df.columns):
         missing = sorted(required_columns - set(df.columns))

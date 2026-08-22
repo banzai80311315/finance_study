@@ -1,5 +1,5 @@
-﻿ticker,company_name,industry,sector,is_active
-9531.T,東京ガス,ガス,公益事業,1
-9501.T,東京電力HD,電気,公益事業,1
-9505.T,北陸電力,電気,公益事業,1
-9432.T,NTT,情報・通信,通信,1
+ticker,company_name,industry,sector,is_active,ir_url
+9531.T,東京ガス,ガス,公益事業,1,https://www.tokyo-gas.co.jp/IR/index.html
+9501.T,東京電力HD,電気,公益事業,1,https://www.tepco.co.jp/about/ir/
+9505.T,北陸電力,電気,公益事業,1,https://www.rikuden.co.jp/corporate/ir.html
+9432.T,NTT,情報・通信,通信,1,https://group.ntt/jp/ir/

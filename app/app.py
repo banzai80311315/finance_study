@@ -14,7 +14,6 @@ def init_session_state():
     if "selected_company_name" not in st.session_state:
         st.session_state.selected_company_name = None
 
-
 def main():
     st.set_page_config(
         page_title="Stock Research Studio",

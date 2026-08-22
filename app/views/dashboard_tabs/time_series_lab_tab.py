@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 
+from lib.charting import line_chart
 from lib.glossary import term_help
 from lib.time_series.backtesting import rolling_origin_backtest
 from lib.time_series.diagnostics import calculate_diagnostics
@@ -93,12 +94,17 @@ def render(context):
             f"{backtest.metrics[key]:,.2f}{suffix}",
             help=term_help(key),
         )
-    st.line_chart(backtest.predictions[["Actual", "Predicted"]])
+    st.altair_chart(
+        line_chart(backtest.predictions[["Actual", "Predicted"]], "価格（円）"),
+        width="stretch",
+    )
 
     st.subheader(f"将来{horizon}営業日の条件付き予測")
     future_index = pd.RangeIndex(1, horizon + 1, name="Step")
     future.index = future_index
-    st.line_chart(future.rename("Forecast"))
+    st.altair_chart(
+        line_chart(future.rename("Forecast"), "予測価格（円）"), width="stretch"
+    )
     st.dataframe(future.rename("予測値（円）").to_frame(), width="stretch")
 
     with st.expander("再現性メモ"):
