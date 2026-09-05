@@ -3,6 +3,7 @@ import streamlit as st
 from lib.charting import bar_chart, line_chart
 from lib.glossary import term_help
 from services.stock_service import get_price_data
+from services.economic_event_service import events_between, load_economic_events
 from services.analysis_service import (
     add_moving_average,
     judge_trend,
@@ -80,9 +81,7 @@ def render(context):
     st.subheader("トレンド判定")
 
     col5, col6 = st.columns(2)
-    col5.metric(
-        "株価トレンド", trend_result, help=term_help("株価トレンド")
-    )
+    col5.metric("株価トレンド", trend_result, help=term_help("株価トレンド"))
     col6.metric(
         "ゴールデンクロス判定",
         golden_cross_result,
@@ -90,10 +89,43 @@ def render(context):
     )
 
     st.subheader("終値・移動平均チャート")
-    chart_df = price_df[
-        ["Close", f"MA{short_window}", f"MA{long_window}"]
-    ].dropna(how="all")
-    st.altair_chart(line_chart(chart_df, "価格（円）"), width="stretch")
+    chart_df = price_df[["Close", f"MA{short_window}", f"MA{long_window}"]].dropna(
+        how="all"
+    )
+    try:
+        economic_events = events_between(
+            load_economic_events(), price_df.index.min(), price_df.index.max()
+        )
+    except (FileNotFoundError, ValueError):
+        economic_events = None
+
+    if economic_events is not None and not economic_events.empty:
+        st.caption("オレンジの縦線は、表示期間内の登録済み経済イベントです。")
+    st.altair_chart(
+        line_chart(chart_df, "価格（円）", events=economic_events),
+        width="stretch",
+    )
+    if economic_events is not None and not economic_events.empty:
+        st.subheader("経済イベントを確認")
+        st.caption("チャート上のオレンジ線は、下のイベント選択と対応しています。")
+        event_labels = economic_events.apply(
+            lambda row: f"{row['date']:%Y-%m-%d}  {row['event_title']}", axis=1
+        )
+        selected_event_label = st.selectbox(
+            "イベントを選択",
+            event_labels.tolist(),
+            key="price_analysis_economic_event",
+        )
+        selected_event = economic_events.loc[event_labels == selected_event_label].iloc[
+            0
+        ]
+        detail_col, source_col = st.columns([4, 1])
+        detail_col.markdown(
+            f"**{selected_event['category']}**  {selected_event['summary']}"
+        )
+        source_url = str(selected_event["source_url"])
+        if source_url.startswith("https://"):
+            source_col.link_button("出典を開く", source_url)
 
     st.subheader("出来高チャート")
     st.altair_chart(bar_chart(price_df["Volume"], "出来高"), width="stretch")

@@ -50,10 +50,14 @@ def search_stocks(stock_master: pd.DataFrame, keyword: str) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=900, show_spinner=False)
-def get_price_data(ticker: str, period: str = "1y") -> pd.DataFrame:
+def get_price_data(
+    ticker: str,
+    period: str = "1y",
+    interval: str = "1d",
+) -> pd.DataFrame:
     stock = yf.Ticker(ticker)
 
-    df = stock.history(period=period)
+    df = stock.history(period=period, interval=interval)
 
     if df.empty:
         raise ValueError(f"株価データを取得できませんでした: {ticker}")

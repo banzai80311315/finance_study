@@ -5,7 +5,7 @@ from services.stock_service import load_stock_master, search_stocks
 
 def show_top_page():
     st.title("Stock Research Studio")
-    st.caption("企業・価格・リスク・時系列モデルを一つの場所で検証する個別株研究環境")
+    st.caption("企業・価格・セクター・時系列を一つの場所で検証する個別株研究環境")
 
     try:
         stock_master = load_stock_master()
@@ -57,9 +57,7 @@ def show_top_page():
     options = filtered_stocks.assign(
         label=lambda frame: frame["company_name"] + "（" + frame["ticker"] + "）"
     )
-    selected_label = st.selectbox(
-        "分析する銘柄を選択", options["label"].tolist()
-    )
+    selected_label = st.selectbox("分析する銘柄を選択", options["label"].tolist())
 
     if st.button("分析開始"):
         selected_row = options[options["label"] == selected_label].iloc[0]
