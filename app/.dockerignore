@@ -1,0 +1,25 @@
+# Local environments and Python caches
+**/.venv/
+**/venv/
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+
+# Local credentials
+**/.env
+**/.env.*
+**/.streamlit/secrets.toml
+
+# Development files
+.git/
+.idea/
+.vscode/
+tests/
+.coverage
+htmlcov/
+*.log
+README.md
+Dockerfile
+.dockerignore
